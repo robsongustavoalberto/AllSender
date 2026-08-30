@@ -1,0 +1,42 @@
+Categories:
+  - Connectivity
+  - Development
+License: MIT
+AuthorName: Robson Gustavo Alberto
+SourceCode: https://github.com/seu-usuario/AllSender
+IssueTracker: https://github.com/seu-usuario/AllSender/issues
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.0
+CurrentVersionCode: 1
+
+Summary: Fast, private, and offline P2P file sharing via local Wi-Fi and HTTP
+Description: |-
+  AllSender is a lightweight and open-source file sharing tool designed to transfer
+  files locally over Wi-Fi or Hotspot connections without requiring an internet connection.
+
+  Features:
+  * 100% Offline and Private: Direct P2P transfer between local devices.
+  * Multi-language Interface: Dynamic system language detection.
+  * Cross-platform Support: Creates a local HTTP server accessible by any modern browser.
+  * Python Engine: Powered by an embedded local Python server using Chaquopy.
+  * Zero Trackers: Fully open-source and free of telemetry or proprietary SDKs.
+
+RepoType: git
+Repo: https://github.com/robsongustavoalberto/AllSender.git
+
+Builds:
+  - versionName: 1.0.0
+    versionCode: 1
+    commit: v1.0.0
+    subdir: app
+    gradle:
+      - yes
+    prebuild:
+      - sed -i -e 's/mavenCentral()/mavenCentral(); maven { url "https:\/\/chaquo.com\/maven" }/' ../build.gradle
+
+AutoUpdate:
+  EnforceVersion: true
+  CheckMode: Tags
+  AutoUpdateMode: Version
