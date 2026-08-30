@@ -1,0 +1,20 @@
+// Top-level build file onde são adicionadas as opções de compilação comuns a todos os sub-projetos/módulos.
+
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url "https://chaquo.com/maven" }
+    }
+    dependencies {
+        // Plugin de compilação Android Gradle
+        classpath 'com.android.tools.build:gradle:8.2.2'
+        
+        // Plugin oficial do Chaquopy para integração de Python no Android
+        classpath 'com.chaquo.python:gradle:15.0.1'
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
