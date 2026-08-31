@@ -2,20 +2,42 @@
  * AllSender - Lógica da Interface Principal (Front-end)
  */
 
-// Estado Global da Aplicação
 const AppState = {
   selectedFiles: [],
-  isSharing: false
+  isSharing: false,
+  tutorialStep: 0
 };
+
+// Passos do Tutorial para novos utilizadores
+const TutorialSteps = [
+  {
+    title: "Bem-vindo ao AllSender",
+    desc: "Partilhe ficheiros em alta velocidade via Wi-Fi ou Ponto de Acesso sem gastar dados móveis.",
+    highlight: null
+  },
+  {
+    title: "1. Selecionar Ficheiros",
+    desc: "Na aba 'Enviar', toque na área de seleção para escolher os ficheiros que deseja transferir.",
+    highlight: "guide-step-select"
+  },
+  {
+    title: "2. Ativar Partilha",
+    desc: "Clique em 'Ativar Partilha'. O AllSender gerará um endereço IP local para o outro dispositivo aceder.",
+    highlight: "guide-step-share"
+  },
+  {
+    title: "3. Receber Ficheiros",
+    desc: "No outro telemóvel ou PC, introduza o IP fornecido na aba 'Receber' para descarregar os ficheiros.",
+    highlight: "guide-step-receive"
+  }
+];
 
 // 1. Inicialização Imediata e Otimizada
 (function initApp() {
-  // Aplica a tradução com base no dispositivo
   if (typeof detectAndApplyLanguage === 'function') {
     detectAndApplyLanguage();
   }
 
-  // Animação e transição fluida da Splash Screen
   window.addEventListener('load', () => {
     setTimeout(() => {
       const splash = document.getElementById("splash-screen");
@@ -25,16 +47,50 @@ const AppState = {
         splash.classList.add("hidden");
         mainApp.classList.add("visible");
         
-        // Remove do DOM após completar a animação CSS
         setTimeout(() => {
           splash.style.display = "none";
+          checkFirstRunTutorial();
         }, 300);
       }
-    }, 600); // 600ms garante visibilidade rápida do logotipo
+    }, 600);
   });
 })();
 
-// 2. Alternância de Abas Seguro (Compatível com qualquer WebView)
+// 2. Gestão do Tutorial de Primeiro Acesso
+function checkFirstRunTutorial() {
+  const isFirstRun = !localStorage.getItem("allsender_tutorial_seen");
+  if (isFirstRun) {
+    showTutorialStep(0);
+  }
+}
+
+function showTutorialStep(stepIndex) {
+  const modal = document.getElementById("tutorial-modal");
+  const titleEl = document.getElementById("tutorial-title");
+  const bodyEl = document.getElementById("tutorial-body");
+  const btnNext = document.getElementById("tutorial-btn-next");
+
+  if (!modal || stepIndex >= TutorialSteps.length) {
+    if (modal) modal.style.display = "none";
+    localStorage.setItem("allsender_tutorial_seen", "true");
+    return;
+  }
+
+  const step = TutorialSteps[stepIndex];
+  AppState.tutorialStep = stepIndex;
+
+  titleEl.textContent = step.title;
+  bodyEl.textContent = step.desc;
+  btnNext.textContent = (stepIndex === TutorialSteps.length - 1) ? "Entendido!" : "Próximo";
+
+  modal.style.display = "flex";
+}
+
+function nextTutorialStep() {
+  showTutorialStep(AppState.tutorialStep + 1);
+}
+
+// 3. Alternância de Abas
 function switchTab(tabId) {
   const contents = document.querySelectorAll('.tab-content');
   const buttons = document.querySelectorAll('.tab-btn');
@@ -47,7 +103,6 @@ function switchTab(tabId) {
     targetTab.classList.add('active');
   }
 
-  // Ativa o botão correspondente à aba selecionada
   const activeBtn = Array.from(buttons).find(btn => 
     btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(tabId)
   );
@@ -56,7 +111,7 @@ function switchTab(tabId) {
   }
 }
 
-// 3. Formatação Segura e Legível do Tamanho do Ficheiro
+// 4. Formatação de Tamanho de Ficheiro
 function formatFileSize(bytes) {
   if (bytes === 0) return '0 Bytes';
   const k = 1024;
@@ -65,7 +120,7 @@ function formatFileSize(bytes) {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-// 4. Manipulação e Seleção de Ficheiros
+// 5. Seleção de Ficheiros
 function handleFileSelection(event) {
   const files = Array.from(event.target.files);
   AppState.selectedFiles = files;
@@ -80,7 +135,7 @@ function handleFileSelection(event) {
     li.className = 'file-item';
 
     const nameSpan = document.createElement('span');
-    nameSpan.textContent = file.name; // Sanitização segura contra XSS
+    nameSpan.textContent = file.name;
 
     const sizeSpan = document.createElement('span');
     sizeSpan.style.color = 'var(--text-muted)';
@@ -93,10 +148,10 @@ function handleFileSelection(event) {
   });
 }
 
-// 5. Comunicação com o Servidor Python (Emissão)
+// 6. Iniciar Servidor de Partilha (Emissão)
 function startSharingServer() {
   if (AppState.selectedFiles.length === 0) {
-    const msg = (typeof i18nData !== 'undefined' && i18nData[currentLang]) 
+    const msg = (typeof i18nData !== 'undefined' && typeof currentLang !== 'undefined' && i18nData[currentLang]) 
       ? i18nData[currentLang].alert_no_files 
       : "Selecione pelo menos um ficheiro.";
     alert(msg);
@@ -106,7 +161,6 @@ function startSharingServer() {
   const serverDetails = document.getElementById('serverDetails');
   const displayIp = document.getElementById('displayIp');
 
-  // Integração com a Ponte Nativa Python/Android
   if (window.pythonBridge && typeof window.pythonBridge.startServer === 'function') {
     try {
       const filePaths = AppState.selectedFiles.map(f => f.path || f.name);
@@ -124,20 +178,19 @@ function startSharingServer() {
       console.error("Erro na ponte Python:", err);
     }
   } else {
-    // Fallback visual para testes no navegador
     displayIp.textContent = "IP: http://192.168.43.1:8080";
     serverDetails.style.display = 'block';
     AppState.isSharing = true;
   }
 }
 
-// 6. Conexão HTTP ao Emissor e Listagem (Recepção)
+// 7. Conectar ao Emissor (Recepção)
 async function connectToSender() {
   const input = document.getElementById('targetIpInput');
   const targetIp = input ? input.value.trim() : '';
 
   if (!targetIp) {
-    const msg = (typeof i18nData !== 'undefined' && i18nData[currentLang]) 
+    const msg = (typeof i18nData !== 'undefined' && typeof currentLang !== 'undefined' && i18nData[currentLang]) 
       ? i18nData[currentLang].alert_no_ip 
       : "Insira o IP do emissor.";
     alert(msg);
@@ -189,7 +242,7 @@ async function connectToSender() {
       downloadBtn.style.padding = '6px 14px';
       downloadBtn.style.textDecoration = 'none';
       downloadBtn.style.fontSize = '13px';
-      downloadBtn.textContent = (typeof i18nData !== 'undefined' && i18nData[currentLang] && i18nData[currentLang].btn_download) 
+      downloadBtn.textContent = (typeof i18nData !== 'undefined' && typeof currentLang !== 'undefined' && i18nData[currentLang] && i18nData[currentLang].btn_download) 
         ? i18nData[currentLang].btn_download 
         : "Baixar";
 
