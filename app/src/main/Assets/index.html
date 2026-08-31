@@ -8,34 +8,31 @@
 </head>
 <body>
 
-  <!-- Tela de Abertura (Splash Screen Direta) -->
+  <!-- Tela de Abertura (Splash Screen) -->
   <div id="splash-screen">
-    <div class="logo-container">
-      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100" height="100" rx="24" fill="#2563EB"/>
-        <path d="M30 50L45 65L70 35" stroke="white" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M25 32H75" stroke="#93C5FD" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 6"/>
-      </svg>
-    </div>
+    <img src="../res/mipmap-xhdpi/ic_launcher.png" alt="AllSender Logo" class="splash-logo">
     <div class="splash-title">AllSender</div>
   </div>
 
   <!-- Interface Principal -->
   <div class="container" id="mainApp">
     <div class="header">
-      <h1>AllSender</h1>
-      <p data-i18n="app_tagline">Transferência de ficheiros simples, direta e FOSS</p>
+      <div class="app-brand">
+        <img src="../res/mipmap-xhdpi/ic_launcher.png" alt="AllSender Logo" class="app-brand-logo">
+        <h1>AllSender</h1>
+      </div>
+      <p data-i18n="app_tagline">Transferência de ficheiros simples e direta</p>
     </div>
 
     <!-- Navegação por Abas -->
     <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchTab('sendTab')" data-i18n="tab_send">Enviar</button>
+      <button id="guide-step-tabs" class="tab-btn active" onclick="switchTab('sendTab')" data-i18n="tab_send">Enviar</button>
       <button class="tab-btn" onclick="switchTab('receiveTab')" data-i18n="tab_receive">Receber</button>
     </div>
 
     <!-- ABA 1: ENVIAR -->
     <div id="sendTab" class="tab-content active">
-      <div class="card">
+      <div class="card" id="guide-step-select">
         <div class="card-title" data-i18n="step1_title">1. Selecionar Ficheiros</div>
         <div class="file-dropzone" onclick="document.getElementById('fileInput').click()">
           <p data-i18n="dropzone_text">Clique ou arraste ficheiros para aqui</p>
@@ -44,10 +41,10 @@
         <ul id="selectedFilesList" class="file-list"></ul>
       </div>
 
-      <div class="card">
+      <div class="card" id="guide-step-share">
         <div class="card-title" data-i18n="step2_title">2. Iniciar Ponto de Partilha</div>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="step2_desc">
-          Gere um endereço local (Wi-Fi/Hotspot) ou insira um IP para longa distância.
+          Gere um endereço local (Wi-Fi/Hotspot) para disponibilizar os ficheiros.
         </p>
         <button class="btn" onclick="startSharingServer()" data-i18n="btn_start_share">Ativar Partilha</button>
         
@@ -60,18 +57,31 @@
 
     <!-- ABA 2: RECEBER -->
     <div id="receiveTab" class="tab-content">
-      <div class="card">
+      <div class="card" id="guide-step-receive">
         <div class="card-title" data-i18n="receive_title">Conectar a um Emissor</div>
         <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="receive_desc">
-          Insira o endereço IP fornecido pelo outro celular (local ou longa distância):
+          Insira o endereço IP fornecido pelo outro telemóvel:
         </p>
-        <input type="text" id="targetIpInput" class="input-field" data-i18n-placeholder="placeholder_ip" placeholder="Ex: 192.168.43.1:8080 ou IP Externo">
+        <input type="text" id="targetIpInput" class="input-field" data-i18n-placeholder="placeholder_ip" placeholder="Ex: 192.168.43.1:8080">
         <button class="btn" onclick="connectToSender()" data-i18n="btn_connect">Aceder Ficheiros</button>
       </div>
 
       <div class="card" id="remoteFilesCard" style="display: none;">
         <div class="card-title" data-i18n="remote_files_title">Ficheiros Disponíveis</div>
         <ul id="remoteFilesList" class="file-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal do Tutorial de Boas-Vindas -->
+  <div id="tutorial-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="tutorial-title">Bem-vindo ao AllSender!</h3>
+      </div>
+      <div class="modal-body" id="tutorial-body"></div>
+      <div class="modal-footer">
+        <button class="btn" id="tutorial-btn-next" onclick="nextTutorialStep()">Próximo</button>
       </div>
     </div>
   </div>
