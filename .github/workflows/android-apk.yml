@@ -8,9 +8,7 @@ on:
 
 jobs:
   build:
-    name: Compilar APK
     runs-on: ubuntu-latest
-
     steps:
       - name: Baixar Código Fonte
         uses: actions/checkout@v4
@@ -21,18 +19,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Configurar Gradle
-        uses: gradle/actions/setup-gradle@v3
-
-      - name: Verificar ou Instalar Gradle Wrapper
+      - name: Organizar Estrutura WebView e Recursos
         run: |
-          if [ ! -f ./gradlew ]; then
-            echo "gradlew não encontrado. Gerando Gradle Wrapper..."
-            gradle wrapper
-          fi
+          mkdir -p app/src/main/assets
+          if [ -d "assets" ]; then cp -r assets/* app/src/main/assets/; fi
+          if [ -f "index.html" ]; then cp index.html app/src/main/assets/; fi
+          if [ -d "css" ]; then cp -r css app/src/main/assets/; fi
+          if [ -d "js" ]; then cp -r js app/src/main/assets/; fi
+
+      - name: Configurar Gradle Wrapper
+        run: |
+          gradle wrapper --gradle-version 8.2
           chmod +x gradlew
 
-      - name: Compilar APK (Debug)
+      - name: Compilar APK Debug
         run: ./gradlew assembleDebug --stacktrace
 
       - name: Upload do APK como Artefato
