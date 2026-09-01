@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AllSender</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Tela de Abertura (Splash Screen) -->
+  <div id="splash-screen">
+    <img src="../res/mipmap-xhdpi/ic_launcher.png" alt="AllSender Logo" class="splash-logo">
+    <div class="splash-title">AllSender</div>
+  </div>
+
+  <!-- Interface Principal -->
+  <div class="container" id="mainApp">
+    <div class="header">
+      <div class="app-brand">
+        <img src="../res/mipmap-xhdpi/ic_launcher.png" alt="AllSender Logo" class="app-brand-logo">
+        <h1>AllSender</h1>
+      </div>
+      <p data-i18n="app_tagline">Transferência de ficheiros simples e direta</p>
+    </div>
+
+    <!-- Navegação por Abas -->
+    <div class="nav-tabs">
+      <button id="guide-step-tabs" class="tab-btn active" onclick="switchTab('sendTab')" data-i18n="tab_send">Enviar</button>
+      <button class="tab-btn" onclick="switchTab('receiveTab')" data-i18n="tab_receive">Receber</button>
+    </div>
+
+    <!-- ABA 1: ENVIAR -->
+    <div id="sendTab" class="tab-content active">
+      <div class="card" id="guide-step-select">
+        <div class="card-title" data-i18n="step1_title">1. Selecionar Ficheiros</div>
+        <div class="file-dropzone" onclick="document.getElementById('fileInput').click()">
+          <p data-i18n="dropzone_text">Clique ou arraste ficheiros para aqui</p>
+          <input type="file" id="fileInput" multiple style="display: none;" onchange="handleFileSelection(event)">
+        </div>
+        <ul id="selectedFilesList" class="file-list"></ul>
+      </div>
+
+      <div class="card" id="guide-step-share">
+        <div class="card-title" data-i18n="step2_title">2. Iniciar Ponto de Partilha</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="step2_desc">
+          Gere um endereço local (Wi-Fi/Hotspot) para disponibilizar os ficheiros.
+        </p>
+        <button class="btn" onclick="startSharingServer()" data-i18n="btn_start_share">Ativar Partilha</button>
+        
+        <div id="serverDetails" style="display: none; margin-top: 15px;">
+          <span class="status-badge" data-i18n="status_active">Servidor Ativo</span>
+          <p style="margin-top: 8px; font-weight: 600;" id="displayIp">IP: http://192.168.1.5:8080</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABA 2: RECEBER -->
+    <div id="receiveTab" class="tab-content">
+      <div class="card" id="guide-step-receive">
+        <div class="card-title" data-i18n="receive_title">Conectar a um Emissor</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;" data-i18n="receive_desc">
+          Insira o endereço IP fornecido pelo outro telemóvel:
+        </p>
+        <input type="text" id="targetIpInput" class="input-field" data-i18n-placeholder="placeholder_ip" placeholder="Ex: 192.168.43.1:8080">
+        <button class="btn" onclick="connectToSender()" data-i18n="btn_connect">Aceder Ficheiros</button>
+      </div>
+
+      <div class="card" id="remoteFilesCard" style="display: none;">
+        <div class="card-title" data-i18n="remote_files_title">Ficheiros Disponíveis</div>
+        <ul id="remoteFilesList" class="file-list"></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal do Tutorial de Boas-Vindas -->
+  <div id="tutorial-modal" class="modal-overlay" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="tutorial-title">Bem-vindo ao AllSender!</h3>
+      </div>
+      <div class="modal-body" id="tutorial-body"></div>
+      <div class="modal-footer">
+        <button class="btn" id="tutorial-btn-next" onclick="nextTutorialStep()">Próximo</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
