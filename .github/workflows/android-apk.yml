@@ -8,7 +8,9 @@ on:
 
 jobs:
   build:
+    name: Compilar APK Debug
     runs-on: ubuntu-latest
+
     steps:
       - name: Baixar Código Fonte
         uses: actions/checkout@v4
@@ -19,32 +21,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Organizar Estrutura WebView e Recursos
-        run: |
-          mkdir -p app/src/main/assets
-          if [ -d "assets" ]; then cp -r assets/* app/src/main/assets/; fi
-          if [ -f "index.html" ]; then cp index.html app/src/main/assets/; fi
-          if [ -d "css" ]; then cp -r css app/src/main/assets/; fi
-          if [ -d "js" ]; then cp -r js app/src/main/assets/; fi
-
-      - name: Configurar Gradle Wrapper
+      - name: Gerar Executável do Gradle Wrapper
         run: |
           gradle wrapper --gradle-version 8.2
           chmod +x gradlew
 
-      - name: Compilar APK Debug
-        run: ./gradlew assembleDebug --stacktrace
+      - name: Executar Compilação do APK
+        run: ./gradlew assembleDebug --stacktrace --info
 
-      - name: Upload do APK como Artefato
+      - name: Guardar Artefato APK
         uses: actions/upload-artifact@v4
         with:
           name: AllSender-APK
           path: app/build/outputs/apk/debug/app-debug.apk
-
-      - name: Anexar APK na Release do GitHub
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: app/build/outputs/apk/debug/app-debug.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
