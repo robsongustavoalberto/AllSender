@@ -1,20 +1,28 @@
-// Top-level build file onde são adicionadas as opções de compilação comuns a todos os sub-projetos/módulos.
+plugins {
+    id 'com.android.application'
+}
 
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://chaquo.com/maven" }
+android {
+    namespace 'com.allsender.app'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.allsender.app"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
-    dependencies {
-        // Plugin de compilação Android Gradle
-        classpath 'com.android.tools.build:gradle:8.2.2'
-        
-        // Plugin oficial do Chaquopy para integração de Python no Android
-        classpath 'com.chaquo.python:gradle:15.0.1'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+dependencies {
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
 }
