@@ -14,7 +14,7 @@ workflows:
         script: |
           gradle wrapper --gradle-version 8.2
           chmod +x gradlew
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew :app:assembleDebug --stacktrace || ./gradlew assembleDebug --stacktrace
 
     artifacts:
-      - app/build/outputs/apk/**/*.apk
+      - "**/build/outputs/apk/**/*.apk"
