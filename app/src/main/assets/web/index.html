@@ -1,0 +1,42 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AllSender</title><style>
+:root{--bg:#0f172a;--cd:#1e293b;--tx:#e2e8f0;--mu:#94a3b8;--ac:#0284c7}
+@media(prefers-color-scheme:light){:root{--bg:#f1f5f9;--cd:#fff;--tx:#0f172a;--mu:#64748b}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:16px system-ui,sans-serif}
+main{max-width:680px;margin:0 auto;padding:20px}h1{margin:0 0 4px}h2{font-size:17px;margin:0 0 12px}
+.card{background:var(--cd);border-radius:14px;padding:16px;margin-top:16px}.mu{color:var(--mu);font-size:14px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #7773}
+.row span{overflow-wrap:anywhere}a.b,button{background:var(--ac);color:#fff;border:0;border-radius:10px;padding:9px 14px;text-decoration:none;font-size:14px;cursor:pointer;white-space:nowrap}
+#drop{border:2px dashed var(--mu);border-radius:12px;padding:26px;text-align:center;cursor:pointer}#drop.on{border-color:var(--ac)}
+progress{width:40%}
+</style></head><body><main>
+<h1>AllSender</h1><div class="mu" id="sub"></div>
+<div class="card"><h2 id="t1"></h2><div id="list"></div><p><button id="all"></button></p></div>
+<div class="card"><h2 id="t2"></h2><div id="drop"></div><input type="file" id="fi" multiple hidden><div id="ups"></div></div>
+</main><script>
+const T={pt:{sub:'Partilha local de ficheiros, sem internet.',t1:'Ficheiros disponíveis',none:'Nenhum ficheiro partilhado neste momento.',dl:'Descarregar',all:'Descarregar todos',t2:'Enviar para este dispositivo',drop:'Toque ou arraste ficheiros para aqui',ok:'Enviado ✔',err:'Falhou ✖'},
+en:{sub:'Local file sharing, no internet needed.',t1:'Available files',none:'No files shared right now.',dl:'Download',all:'Download all',t2:'Send to this device',drop:'Tap or drop files here',ok:'Sent ✔',err:'Failed ✖'}};
+const t=T[(navigator.language||'').slice(0,2)]||T.en,$=id=>document.getElementById(id);
+for(const k of['sub','t1','t2','all','drop'])$(k).textContent=t[k];
+const fmt=n=>{const u=['B','KB','MB','GB'];let i=0;while(n>=1024&&i<3){n/=1024;i++}return n.toFixed(i?1:0)+' '+u[i]};
+const el=(tag,props)=>Object.assign(document.createElement(tag),props||{});
+let cur=[];
+function render(a){const l=$('list');l.textContent='';cur=a;
+ if(!a.length){l.append(el('p',{className:'mu',textContent:t.none}));return}
+ for(const f of a){const r=el('div',{className:'row'});
+  r.append(el('span',{textContent:f.name+(f.size>=0?' · '+fmt(f.size):'')}),el('a',{className:'b',href:'d/'+f.id,textContent:t.dl}));l.append(r)}}
+async function load(){try{render(await(await fetch('files')).json())}catch(e){}}
+$('all').onclick=async()=>{for(const f of cur){const a=el('a',{href:'d/'+f.id,download:f.name});document.body.append(a);a.click();a.remove();await new Promise(r=>setTimeout(r,600))}};
+function up(f){return new Promise(done=>{
+ const r=el('div',{className:'row'}),p=el('progress',{max:100,value:0});r.append(el('span',{textContent:f.name}),p);$('ups').append(r);
+ const x=new XMLHttpRequest(),d=new FormData(),fin=ok=>{p.replaceWith(el('span',{textContent:ok?t.ok:t.err}));done()};
+ d.append('file',f,f.name);x.open('POST','up');
+ x.upload.onprogress=e=>{if(e.lengthComputable)p.value=e.loaded/e.total*100};
+ x.onload=()=>fin(x.status==200);x.onerror=()=>fin(false);x.send(d)})}
+async function send(fs){for(const f of fs)await up(f)}
+$('drop').onclick=()=>$('fi').click();
+$('fi').onchange=e=>{const fs=[...e.target.files];e.target.value='';send(fs)};
+$('drop').ondragover=e=>{e.preventDefault();$('drop').classList.add('on')};
+$('drop').ondragleave=()=>$('drop').classList.remove('on');
+$('drop').ondrop=e=>{e.preventDefault();$('drop').classList.remove('on');send([...e.dataTransfer.files])};
+setInterval(load,4000);load();
+</script></body></html>
