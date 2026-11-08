@@ -1,21 +1,7 @@
-pluginManagement {
-    repositories {
-        google()
-        mavenCentral()
-        gradlePluginPortal()
-        maven { url "https://chaquo.com/maven" }
-    }
-    plugins {
-        id 'com.chaquo.python' version '15.0.1' apply false
-    }
-}
+pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-        maven { url "https://chaquo.com/maven" }
-    }
+    repositories { google(); mavenCentral() }
 }
 rootProject.name = "AllSender"
 include ':app'
